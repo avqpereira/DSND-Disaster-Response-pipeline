@@ -1,16 +1,73 @@
 import sys
-
+import pandas as pd
+import sqlite3
 
 def load_data(messages_filepath, categories_filepath):
-    pass
+  messages = pd.read_csv(messages_filepath)
+
+  categories = pd.read_csv(categories_filepath)
+
+  df = messages.merge(categories, on = 'id')
+
+  return df
 
 
 def clean_data(df):
-    pass
+  categories = pd.DataFrame(df.categories.str.split(";", expand=True))
+
+  # select the first row of the categories dataframe
+  row = categories.iloc[:1]
+
+  # use this row to extract a list of new column names for categories
+  category_colnames = row.apply(lambda x: x.str.split('-')[0][0], axis =0)
+
+  # rename the columns of `categories`
+  categories.columns = category_colnames
+
+  for column in categories:
+    # set each value to be the last character of the string
+    categories[column] = categories[column].apply(lambda x: x[-1])
+    
+    # convert column from string to numeric
+    categories[column] = pd.to_numeric(categories[column])
+
+  # drop the original categories column from `df`
+  df.drop(columns='categories', inplace=True)
+
+  # reseting indexes
+  categories.reset_index(drop=True, inplace=True)
+  df.reset_index(drop=True, inplace=True)
+
+  # concatenate the original dataframe with the new `categories` dataframe
+  df = pd.concat([df, categories], axis=1)
+
+  # drop duplicates
+  df.drop_duplicates(inplace = True)
+
+  return df
+
+
+
+def drop_table(table_name, database_filename):
+  conn = sqlite3.connect(database_filename)
+  c = conn.cursor()
+
+  # dropping table when it exists
+  try:
+    c.execute(f"DROP TABLE IF EXISTS {table_name}")
+    print(f"    TABLE: 'MessagesCategories' dropped on {database_filename}")
+    conn.commit()
+  except:
+    None
+
+  conn.close()
+  return None
 
 
 def save_data(df, database_filename):
-    pass  
+  conn = sqlite3.connect(database_filename)
+  df.to_sql('MessagesCategories', conn, index=False)
+  return None  
 
 
 def main():
@@ -24,6 +81,9 @@ def main():
 
         print('Cleaning data...')
         df = clean_data(df)
+
+        print('Attempting to drop table if it exists')
+        drop_table('MessagesCategories', database_filepath)
         
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_data(df, database_filepath)
