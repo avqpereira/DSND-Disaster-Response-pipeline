@@ -15,7 +15,26 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
+    """
+    A function used to normalize, tokenize and lemmatize a given text.
+    Input:
+        text: String containing a message to be handled.
+    Output:
+        clean_tokens: List of clean tokens created from the given text
+    """
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+        
+    # normalize case
+    text = text.lower()
+    
+    # tokenize
     tokens = word_tokenize(text)
+    
+    # lemmatize
     lemmatizer = WordNetLemmatizer()
 
     clean_tokens = []

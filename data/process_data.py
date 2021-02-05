@@ -3,6 +3,14 @@ import pandas as pd
 import sqlite3
 
 def load_data(messages_filepath, categories_filepath):
+  """
+  A function for loading two CSV files and merge them on 'id' column.
+  Inputs:
+    messages_filepath: String, filepath for the first CSV file
+    categories_filepath: String, filepath for the second CSV file
+  Output:
+    df: Pandas Dataframe containing the merged content from both CSV inputs.
+  """
   messages = pd.read_csv(messages_filepath)
 
   categories = pd.read_csv(categories_filepath)
@@ -13,6 +21,17 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+  """
+  A function for quick data cleaning. It:
+  - Expands the categories into multiple columns
+  - Renames the columns
+  - Transforms columns values into numeric representation
+  - Concatenates it and drops duplicates
+  Inputs:
+    df: Pandas Dataframe, contains merged 'Messages' and 'Categories' files
+  Output:
+    df: Pandas Dataframe, containing cleaned df.
+  """
   categories = pd.DataFrame(df.categories.str.split(";", expand=True))
 
   # select the first row of the categories dataframe
@@ -48,14 +67,22 @@ def clean_data(df):
 
 
 
-def drop_table(table_name, database_filename):
-  conn = sqlite3.connect(database_filename)
+def drop_table(table_name, database_filepath):
+  """
+  A function to check if a table exists on a database. If it does, table is dropped.
+  Inputs:
+    table_name: String, name of the table.
+    database_filepath: String, path to the Database to be checked.
+  Output:
+    None
+  """
+  conn = sqlite3.connect(database_filepath)
   c = conn.cursor()
 
   # dropping table when it exists
   try:
     c.execute(f"DROP TABLE IF EXISTS {table_name}")
-    print(f"    TABLE: 'MessagesCategories' dropped on {database_filename}")
+    print(f"    TABLE: 'MessagesCategories' dropped on {database_filepath}")
     conn.commit()
   except:
     None
@@ -64,13 +91,28 @@ def drop_table(table_name, database_filename):
   return None
 
 
-def save_data(df, database_filename):
-  conn = sqlite3.connect(database_filename)
+def save_data(df, database_filepath):
+  """
+  A function to save a Pandas Dataframe into a database.
+  Inputs:
+    df: Pandas Dataframe, cleaned and ready to be saved.
+    database_filepath: String, path to the Database where df will be saved.
+  Output:
+    None
+  """
+  conn = sqlite3.connect(database_filepath)
   df.to_sql('MessagesCategories', conn, index=False)
   return None  
 
 
 def main():
+  """
+  Function that loads the data, cleans it and saves it toa database.
+  Input:
+    None
+  Output:
+    None
+  """
     if len(sys.argv) == 4:
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
