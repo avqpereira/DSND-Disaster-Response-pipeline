@@ -7,6 +7,24 @@ There are three main sections in this project:
 - Machine Learning Pipeline, to build, train and save a model
 - A web app to display some visualizations.
 
+## Repo Structure
+
+    app
+    | - template
+    | |- master.html # main page of web app
+    | |- go.html # classification result page of web app
+    |- run.py # Flask file that runs app
+    data
+    |- disaster_categories.csv # data to process
+    |- disaster_messages.csv # data to process
+    |- process_data.py # Data preprocessing script
+    |- InsertDatabaseName.db # database to save clean data to
+    models
+    |- train_classifier.py # Machine Learning Pipeline script
+    |- classifier.pkl # saved model
+    README.md
+
+
 ## Installing
 
 git clone https://github.com/avqpereira/DSND-Disaster-Response-pipeline.git
