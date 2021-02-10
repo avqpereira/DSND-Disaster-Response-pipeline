@@ -21,8 +21,21 @@ from sklearn.metrics import classification_report
 
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    """
+    Class for a Custom Transformer that extracts columns passed as argument to its constructor.
+    Inputs:
+        BaseEstimator: Base class for all estimators in scikit-learn.
+        TransformerMixin: Mixin class for all transformers in scikit-learn.
+    """
 
     def starting_verb(self, text):
+        """
+        Function to check if a text has or not any sentence with a starting verb. 
+        Inputs:
+            text: String, a text to be checked
+        Outputs:
+            bool: The return value. True for success, False otherwise.
+        """
         sentence_list = nltk.sent_tokenize(text)
         for sentence in sentence_list:
             pos_tags = nltk.pos_tag(tokenize(sentence))
@@ -32,9 +45,24 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
         return False
 
     def fit(self, x, y=None):
+        """
+        A fit method that return self.
+        Inputs:
+            x: Array of messages
+            y: Array of categories
+        Output:
+            self
+        """
         return self
 
     def transform(self, X):
+        """
+        A function that states wether or not a given text has a starting verb.
+        Inputs:
+            X: Array of messages.
+        Outputs: 
+            Pandas DataFrame with one boolean column.
+        """
         X_tagged = pd.Series(X).apply(self.starting_verb)
         return pd.DataFrame(X_tagged)
 
@@ -165,7 +193,7 @@ def main():
     """
     A functions that
     - Loads a table from a specific database.
-    - Builds a Machine Learning model
+    - Builds a Machine Learning model_filepath
     - Splits it into X and y s
     """
     if len(sys.argv) == 3:

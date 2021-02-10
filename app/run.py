@@ -14,6 +14,52 @@ from sqlalchemy import create_engine
 
 app = Flask(__name__)
 
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    """
+    Class for a Custom Transformer that extracts columns passed as argument to its constructor.
+    Inputs:
+        BaseEstimator: Base class for all estimators in scikit-learn.
+        TransformerMixin: Mixin class for all transformers in scikit-learn.
+    """
+
+    def starting_verb(self, text):
+        """
+        Function to check if a text has or not any sentence with a starting verb. 
+        Inputs:
+            text: String, a text to be checked
+        Outputs:
+            bool: The return value. True for success, False otherwise.
+        """
+        sentence_list = nltk.sent_tokenize(text)
+        for sentence in sentence_list:
+            pos_tags = nltk.pos_tag(tokenize(sentence))
+            first_word, first_tag = pos_tags[0]
+            if first_tag in ['VB', 'VBP'] or first_word == 'RT':
+                return True
+        return False
+
+    def fit(self, x, y=None):
+        """
+        A fit method that return self.
+        Inputs:
+            x: Array of messages
+            y: Array of categories
+        Output:
+            self
+        """
+        return self
+
+    def transform(self, X):
+        """
+        A function that states wether or not a given text has a starting verb.
+        Inputs:
+            X: Array of messages.
+        Outputs: 
+            Pandas DataFrame with one boolean column.
+        """
+        X_tagged = pd.Series(X).apply(self.starting_verb)
+        return pd.DataFrame(X_tagged)
+
 def tokenize(text):
     """
     A function used to normalize, tokenize and lemmatize a given text.
