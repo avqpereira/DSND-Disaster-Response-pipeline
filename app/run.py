@@ -152,24 +152,6 @@ def index():
                     'title': "Categories"
                 }
             }
-        },
-        {
-            'data': [
-                Bar(
-                    x = categories,
-                    y = counts
-                )
-            ],
-
-            'layout': {
-                'title': 'Distribution of Message Categories',
-                'yaxis': {
-                    'title': "Count"
-                },
-                'xaxis': {
-                    'title': "Categories"
-                }
-            }
         }
     ]
     
